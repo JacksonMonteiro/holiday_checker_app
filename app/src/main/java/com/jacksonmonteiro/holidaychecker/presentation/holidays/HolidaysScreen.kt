@@ -12,7 +12,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,15 +31,15 @@ import com.jacksonmonteiro.holidaychecker.R
 import com.jacksonmonteiro.holidaychecker.domain.model.Country
 
 @Composable
-fun HolidaysScreen() {
-    HolidaysScreenContent()
+fun HolidaysScreen(modifier: Modifier = Modifier) {
+    HolidaysScreenContent(modifier)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HolidaysScreenContent() {
+fun HolidaysScreenContent(modifier: Modifier = Modifier) {
     val countries = listOf(
-        Country("Brazil", "BR", R.drawable.flag_br)
+        Country("Brazil", "BR", R.drawable.flag_br),
     )
 
     var text by remember { mutableStateOf("") }
@@ -45,9 +47,8 @@ fun HolidaysScreenContent() {
     var expandedCountries by remember { mutableStateOf(false) }
     var selectedCountry by remember { mutableStateOf(countries[0]) }
 
-
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFEFEFEF)),
     ) {
@@ -61,20 +62,30 @@ fun HolidaysScreenContent() {
                 ExposedDropdownMenuBox(
                     expanded = expandedCountries,
                     onExpandedChange = { expandedCountries = !expandedCountries },
-                    modifier = Modifier.fillMaxWidth()) {
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     OutlinedTextField(
                         value = selectedCountry.name,
                         onValueChange = {},
                         readOnly = true,
                         leadingIcon = {
                             Icon(
-                                painter = painterResource(selectedCountry.icon),
-                                contentDescription = selectedCountry.name
+                                painter = painterResource(id = selectedCountry.icon),
+                                contentDescription = selectedCountry.name,
+                                tint = Color.Unspecified
                             )
                         },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCountries)
                         },
+                        modifier = Modifier.menuAnchor(
+                            MenuAnchorType.PrimaryNotEditable,
+                            true
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedTextColor = Color.Black,
+                            focusedTextColor = Color.Black,
+                        )
                     )
                     ExposedDropdownMenu(
                         expanded = expandedCountries,
@@ -86,7 +97,8 @@ fun HolidaysScreenContent() {
                                 leadingIcon = {
                                     Icon(
                                         painter = painterResource(country.icon),
-                                        contentDescription = country.name
+                                        contentDescription = country.name,
+                                        tint = Color.Unspecified
                                     )
                                 },
                                 onClick = {
