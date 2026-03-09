@@ -7,7 +7,7 @@ data class Holiday(
     var countryCode: String? = null,
     var fixed: Boolean = false,
     var global: Boolean = false,
-    var counties: List<String> = emptyList(),
-    var launchYear: String? = null,
-    var types: List<String> = emptyList(),
+    var counties: List<String>? = emptyList(),
+    var launchYear: Int? = null,
+    var types: List<String>? = emptyList(),
 )

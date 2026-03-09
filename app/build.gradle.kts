@@ -36,6 +36,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -58,7 +59,13 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // KOIN
-    val koin_version = "4.1.1"
-    implementation("io.insert-koin:koin-android:${koin_version}")
-    implementation("io.insert-koin:koin-androidx-compose:${koin_version}")
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
+    // Ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.neg)
+    implementation(libs.ktor.serialization.json)
+    implementation(libs.ktor.client.logging)
 }
