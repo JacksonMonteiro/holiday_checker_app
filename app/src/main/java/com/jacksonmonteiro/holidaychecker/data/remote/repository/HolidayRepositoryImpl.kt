@@ -3,6 +3,7 @@ package com.jacksonmonteiro.holidaychecker.data.remote.repository
 import com.jacksonmonteiro.holidaychecker.data.mappers.toDomain
 import com.jacksonmonteiro.holidaychecker.data.remote.service.HolidayAPIService
 import com.jacksonmonteiro.holidaychecker.domain.model.Holiday
+import com.jacksonmonteiro.holidaychecker.domain.repository.HolidayRepository
 import io.ktor.client.plugins.ResponseException
 
 class HolidayRepositoryImpl(private val api: HolidayAPIService) : HolidayRepository {

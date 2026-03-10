@@ -1,4 +1,4 @@
-package com.jacksonmonteiro.holidaychecker.data.remote.repository
+package com.jacksonmonteiro.holidaychecker.domain.repository
 
 import com.jacksonmonteiro.holidaychecker.domain.model.Holiday
 

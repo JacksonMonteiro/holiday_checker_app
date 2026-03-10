@@ -2,6 +2,8 @@ package com.jacksonmonteiro.holidaychecker
 
 import android.app.Application
 import com.jacksonmonteiro.holidaychecker.di.dataModule
+import com.jacksonmonteiro.holidaychecker.di.domainModule
+import com.jacksonmonteiro.holidaychecker.di.presentationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -14,7 +16,7 @@ class App : Application() {
     private fun initKoin() {
         startKoin {
             androidContext(this@App)
-            modules(dataModule)
+            modules(dataModule, domainModule, presentationModule)
         }
     }
 }

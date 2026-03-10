@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -43,18 +44,46 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jacksonmonteiro.holidaychecker.R
 import com.jacksonmonteiro.holidaychecker.domain.model.Country
 import com.jacksonmonteiro.holidaychecker.domain.model.Holiday
+import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
 @Composable
-fun HolidaysScreen(modifier: Modifier = Modifier) {
-    HolidaysScreenContent(modifier)
+fun HolidaysScreen(modifier: Modifier = Modifier, viewModel: HolidaysViewModel = koinViewModel()) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    HolidaysScreenContent(modifier, state, viewModel::onEvent)
 }
 
 @Composable
-fun HolidaysScreenContent(modifier: Modifier = Modifier) {
+fun HolidaysScreenContent(
+    modifier: Modifier = Modifier,
+    state: HolidaysUIState,
+    onEvent: (HolidaysEvent) -> Unit
+) {
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFFEFEFEF)),
+    ) {
+        when {
+            state.isLoading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+            state.errorMessage != null -> {
+                // TODO: MUST DEVELOP AN ERROR VIEW
+            }
+
+            else -> HolidaysList(
+                state.holidays
+            ) { year, countryCode -> onEvent(HolidaysEvent.FetchHolidays(year, countryCode)) }
+        }
+    }
+}
+
+@Composable
+fun HolidaysList(holidays: List<Holiday>, callback: (Int, String) -> Unit) {
     val countries = listOf(Country("Brazil", "BR", R.drawable.flag_br))
     var expandedCountries by remember { mutableStateOf(false) }
     var selectedCountry by remember { mutableStateOf(countries[0]) }
@@ -62,63 +91,59 @@ fun HolidaysScreenContent(modifier: Modifier = Modifier) {
     var expandedYears by remember { mutableStateOf(false) }
     var selectedYear by remember { mutableIntStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
 
-    Box(
-        modifier = modifier
+    Column(
+        modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFEFEFEF)),
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                CountriesSpinner(
-                    countries = countries,
-                    expandedCountries = expandedCountries,
-                    selectedCountry = selectedCountry,
-                    onExpandChanged = { expandedCountries = !expandedCountries },
-                    onDismissRequest = { expandedCountries = false },
-                    onSelectCountry = { country ->
-                        selectedCountry = country
-                        expandedCountries = false
-                        Log.d("YEAR", selectedCountry.toString())
-                    })
-                Spacer(modifier = Modifier.width(8.dp))
-                YearsSpinner(
-                    expandedYears,
-                    selectedYear,
-                    onExpandChanged = { expandedYears = !expandedYears },
-                    onDismissRequest = { expandedYears = false },
-                    onSelectYear = { year ->
-                        selectedYear = year
-                        expandedYears = false
-                        Log.d("YEAR", "$selectedYear")
-                    }
-                )
-            }
-            Button(
-                onClick = {},
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF18760C)
-                )
-            ) {
-                Text(
-                    text = "Search",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            HolidaysList()
+        Row(modifier = Modifier.fillMaxWidth()) {
+            CountriesSpinner(
+                countries = countries,
+                expandedCountries = expandedCountries,
+                selectedCountry = selectedCountry,
+                onExpandChanged = { expandedCountries = !expandedCountries },
+                onDismissRequest = { expandedCountries = false },
+                onSelectCountry = { country ->
+                    selectedCountry = country
+                    expandedCountries = false
+                    Log.d("YEAR", selectedCountry.toString())
+                })
+            Spacer(modifier = Modifier.width(8.dp))
+            YearsSpinner(
+                expandedYears,
+                selectedYear,
+                onExpandChanged = { expandedYears = !expandedYears },
+                onDismissRequest = { expandedYears = false },
+                onSelectYear = { year ->
+                    selectedYear = year
+                    expandedYears = false
+                    Log.d("YEAR", "$selectedYear")
+                }
+            )
         }
+        Button(
+            onClick = {
+                callback(selectedYear, selectedCountry.countryCode)
+            },
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF18760C)
+            )
+        ) {
+            Text(
+                text = "Search",
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Holidays(holidays)
     }
 }
 
@@ -222,22 +247,17 @@ fun YearsSpinner(
 }
 
 @Composable
-fun HolidaysList(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth()) {
+fun Holidays(holidays: List<Holiday>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Holidays",
             style = TextStyle(fontSize = 20.sp, color = Color.Black, fontWeight = FontWeight.Bold),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = modifier.height(16.dp))
-        LazyColumn(modifier.fillMaxWidth()) {
-            items(
-                listOf(
-                    Holiday(date = "01/01/2026", "Ano novo", "New Year"),
-                    Holiday(date = "25/12/2026", "Natal", "Christmas"),
-                )
-            ) { item ->
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn(Modifier.fillMaxWidth()) {
+            items(holidays) { item ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -247,7 +267,14 @@ fun HolidaysList(modifier: Modifier = Modifier) {
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         Row {
-                            Text("Data:", style = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Medium))
+                            Text(
+                                "Data:",
+                                style = TextStyle(
+                                    color = Color.Black,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 item.date.orEmpty(),
@@ -257,7 +284,11 @@ fun HolidaysList(modifier: Modifier = Modifier) {
                         Row {
                             Text(
                                 "Nome Local do Feriado:",
-                                style = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                                style = TextStyle(
+                                    color = Color.Black,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
@@ -268,7 +299,11 @@ fun HolidaysList(modifier: Modifier = Modifier) {
                         Row {
                             Text(
                                 "Nome Global do Feriado:",
-                                style = TextStyle(color = Color.Black, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                                style = TextStyle(
+                                    color = Color.Black,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
