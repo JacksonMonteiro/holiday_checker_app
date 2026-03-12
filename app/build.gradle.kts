@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
     kotlin("plugin.serialization") version "2.1.0"
 }
 
@@ -69,4 +70,9 @@ dependencies {
     implementation(libs.ktor.client.content.neg)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.client.logging)
+
+    // Room
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
+    ksp("androidx.room:room-compiler:2.8.4")
 }
