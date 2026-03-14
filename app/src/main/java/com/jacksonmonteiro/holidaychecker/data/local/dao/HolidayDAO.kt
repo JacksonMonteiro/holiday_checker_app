@@ -13,5 +13,5 @@ interface HolidayDAO {
     fun getByYearAndContry(year: Int, countryCode: String): Flow<List<HolidayEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun upsert(): Long
+    fun upsert(entity: HolidayEntity): Long
 }

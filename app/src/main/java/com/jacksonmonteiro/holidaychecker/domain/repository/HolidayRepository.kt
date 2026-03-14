@@ -1,7 +1,11 @@
 package com.jacksonmonteiro.holidaychecker.domain.repository
 
 import com.jacksonmonteiro.holidaychecker.domain.model.Holiday
+import kotlinx.coroutines.flow.Flow
 
 interface HolidayRepository {
-    suspend fun fetchHolidaysByYearAndCountry(year: Int, countryCode: String) : Result<List<Holiday>>
+    fun fetchHolidaysByYearAndCountry(
+        year: Int,
+        countryCode: String
+    ): Flow<Result<List<Holiday>>>
 }
