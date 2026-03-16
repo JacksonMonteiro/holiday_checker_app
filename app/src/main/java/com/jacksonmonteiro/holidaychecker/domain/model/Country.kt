@@ -6,4 +6,11 @@ data class Country(
     val name: String,
     val countryCode: String,
     @DrawableRes val icon: Int,
-)
+) {
+    override fun toString(): String {
+        return """
+            Name: $name
+            Country Code: $countryCode
+        """.trimIndent()
+    }
+}
