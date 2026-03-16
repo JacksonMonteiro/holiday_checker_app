@@ -1,5 +1,8 @@
 package com.jacksonmonteiro.holidaychecker.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Holiday(
     var date: String? = null,
     var localName: String? = null,

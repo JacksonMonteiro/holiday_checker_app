@@ -7,9 +7,11 @@ import com.jacksonmonteiro.holidaychecker.data.remote.service.HolidayAPIService
 import com.jacksonmonteiro.holidaychecker.domain.model.Holiday
 import com.jacksonmonteiro.holidaychecker.domain.repository.HolidayRepository
 import io.ktor.client.plugins.ResponseException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.serialization.json.Json
 
 class HolidayRepositoryImpl(private val api: HolidayAPIService, private val dao: HolidayDAO) :
@@ -38,6 +40,6 @@ class HolidayRepositoryImpl(private val api: HolidayAPIService, private val dao:
                 emit(Result.failure(e))
             }
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
 }
